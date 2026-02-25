@@ -13,6 +13,19 @@ import os
 import sys
 from appdirs import AppDirs
 from pathlib import Path
+import platform
+
+LOCAL_PORT = 3306
+if platform.node() != "bighelper.top":
+    from sshtunnel import SSHTunnelForwarder
+    ssh_tunnel = SSHTunnelForwarder(
+        ("101.43.143.170", 22),
+        ssh_private_key=r"C:\Users\timer\.ssh\id_ed25519.ppk" if sys.platform == 'win32' else '/root/.ssh/id_ed25519',
+        ssh_username="root",
+        remote_bind_address=("127.0.0.1", 3306),
+    )
+    ssh_tunnel.start()
+    LOCAL_PORT = ssh_tunnel.local_bind_port
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,9 +93,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'quantdb',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'USER': 'quant',
-        'PASSWORD': '123456'
+        'PASSWORD': '123456',
+        'PORT': LOCAL_PORT
     },
 }
 
